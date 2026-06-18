@@ -33,7 +33,7 @@ Resources:
 
       ImageId: ami-0c02fb55956c7d316
 
-      InstanceType: t2.micro
+      InstanceType: t3.micro
 
       SecurityGroupIds:
 
