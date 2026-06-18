@@ -1,0 +1,178 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  Examen Final Arquitectura de Computadores -
+  Despliegue EC2 con CloudFormation
+
+
+Resources:
+
+  # Security Group con acceso HTTP
+  WebSecurityGroup:
+
+    Type: AWS::EC2::SecurityGroup
+
+    Properties:
+
+      GroupDescription: Permitir acceso HTTP
+
+      SecurityGroupIngress:
+
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+
+  # Instancia EC2 Amazon Linux
+  WebServerInstance:
+
+    Type: AWS::EC2::Instance
+
+    Properties:
+
+      ImageId: ami-0c02fb55956c7d316
+
+      InstanceType: t2.micro
+
+      SecurityGroupIds:
+
+        - !Ref WebSecurityGroup
+
+
+      Tags:
+
+        - Key: Name
+          Value: ExamenArqDePC-WebServer
+
+
+      UserData:
+
+        Fn::Base64: |
+
+          #!/bin/bash
+
+          yum update -y
+
+          yum install httpd -y
+
+
+          systemctl start httpd
+
+          systemctl enable httpd
+
+
+          cat <<EOF > /var/www/html/index.html
+
+
+          <!DOCTYPE html>
+
+          <html>
+
+          <head>
+
+          <title>Examen Final</title>
+
+
+          <style>
+
+          body {
+
+            font-family: Arial;
+
+            text-align: center;
+
+            margin-top: 50px;
+
+            background-color: #f2f2f2;
+
+          }
+
+
+          h1 {
+
+            color: #333;
+
+          }
+
+
+          .card {
+
+            background:white;
+
+            padding:30px;
+
+            border-radius:15px;
+
+            display:inline-block;
+
+          }
+
+
+          </style>
+
+
+          </head>
+
+
+          <body>
+
+
+          <div class="card">
+
+
+          <h1>Examen Final Arquitectura de Computadores</h1>
+
+
+          <h2>Estudiante: Oscar Becerra</h2>
+
+
+          <h3>Código estudiantil: 0192176/h3>
+
+
+          <p>
+
+          Página desplegada automáticamente usando AWS CloudFormation y GitHub Actions.
+
+          </p>
+
+
+          </div>
+
+
+          <script>
+
+
+          console.log("Página desplegada correctamente");
+
+
+          alert("Servidor EC2 funcionando correctamente");
+
+
+          </script>
+
+
+          </body>
+
+
+          </html>
+
+
+          EOF
+
+
+
+Outputs:
+
+
+  WebsiteURL:
+
+    Description: URL de acceso al servidor web
+
+    Value:
+
+      Fn::Sub:
+
+        - "http://${PublicDNS}"
+
+        - PublicDNS: !GetAtt WebServerInstance.PublicDnsName
